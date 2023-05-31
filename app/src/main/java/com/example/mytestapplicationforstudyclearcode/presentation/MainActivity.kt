@@ -7,6 +7,7 @@ import android.widget.EditText
 import android.widget.TextView
 import com.example.mytestapplicationforstudyclearcode.R
 import com.example.mytestapplicationforstudyclearcode.data.repository.UserRepositoryImpl
+import com.example.mytestapplicationforstudyclearcode.data.storage.sharedprefs.SharedPrefUserStorage
 import com.example.mytestapplicationforstudyclearcode.domain.models.SaveUserNameParam
 import com.example.mytestapplicationforstudyclearcode.domain.usecase.GetUserNameUseCase
 import com.example.mytestapplicationforstudyclearcode.domain.usecase.SaveUserNameUseCase
@@ -14,19 +15,13 @@ import com.example.mytestapplicationforstudyclearcode.domain.usecase.SaveUserNam
 class MainActivity : Activity() {
 
     private val userRepository by lazy(LazyThreadSafetyMode.NONE) {
-        UserRepositoryImpl(
-            context = applicationContext
-        )
+        UserRepositoryImpl(userStorage = SharedPrefUserStorage(context = applicationContext))
     }
     private val getUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
-        GetUserNameUseCase(
-            userRepository = userRepository
-        )
+        GetUserNameUseCase(userRepository = userRepository)
     }
     private val saveUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
-        SaveUserNameUseCase(
-            userRepository = userRepository
-        )
+        SaveUserNameUseCase(userRepository = userRepository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +35,8 @@ class MainActivity : Activity() {
 
         sendButton.setOnClickListener {
             val text = dataEditView.text.toString()
-            val params = SaveUserNameParam(name = text)
+            val params =
+                SaveUserNameParam(name = text)
             val result = saveUserNameUseCase.execute(param = params)
             dataTextView.text = "Save result $result"
         }
